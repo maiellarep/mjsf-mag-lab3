@@ -5,6 +5,7 @@ export class Task {
   static TS_INCOMPLETED = 'incompleted'
 
   constructor() {
+    let id = md5(Date.now()+salt)
     this.id = md5(Date.now()+salt)
     this.title = "";
     this.description = "";

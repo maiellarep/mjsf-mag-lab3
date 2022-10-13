@@ -9,6 +9,14 @@
         <div class="card-text">
           <form>
             <div class="form-group">
+              <label for="task-type">Type:</label>
+              <select v-model="model.type" name="cars" class="form-control" id="task-type">
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+
               <label for="task-title">Task title</label>
               <input v-model="model.title" type="text" class="form-control" id="task-title"
                      aria-describedby="emailHelp">
@@ -23,11 +31,38 @@
           <ul class="pt-3">
             <li v-for="(item, index) in filteredTaskList" :key="index" class="d-flex justify-content-between mb-3">
               <div>
-                <h4 v-if="item.status === 'completed'"><s>{{item.title}}</s></h4>
-                <h4 v-else>{{item.title}}</h4>
+                <h4 :class="item.type"  v-if="item.status === 'completed'"><s>{{item.title}}</s></h4>
+                <h4 :class="item.type"  v-else>{{item.title}}</h4>
                 <p>{{item.description}}</p>
               </div>
-              <button class="btn btn-primary" @click="item.status = 'completed' ">Compled</button>
+              <div>
+                <button class="btn btn-primary" @click="item.status = 'completed' ">Compled</button>
+                <button class="btn btn-danger" @click.prevent="deleteItem(item)">Deled</button>
+                <button class="btn btn-warning" @click="isOpen = true">Edid</button>
+                <Popup :open="isOpen" @close="isOpen = !isOpen">
+                <form>
+                  <label for="task-type">Type:</label>
+                  <select v-model="item.type" name="cars" class="form-control" id="task-type">
+                    <option value="critical">Critical</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                  </select>
+
+                  <div class="form-group">
+                    <label for="task-title">Task title</label>
+                    <input v-model="item.title" type="text" class="form-control" id="task-title" 
+                          aria-describedby="emailHelp">
+                  </div>
+                  <div class="form-group">
+                    <label for="task-desc">Task description</label>
+                    <textarea v-model="item.description" class="form-control" id="task-desc"></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary" @click.prevent="editItem(item)" @click="isOpen = false">Submit</button>
+                </form>
+              </Popup>
+              </div>
+
             </li>
           </ul>
         </div>
@@ -48,11 +83,14 @@
 
 <script>
   import {Task} from '../models/task';
+  import Popup from './Popup.vue';
+
   export default {
     name: "ToDo",
     props: {},
     data: () => {
       return {
+        isOpen: false,
         model: new Task(),
         taskList: [],
         filterStatus: "",
@@ -70,7 +108,18 @@
           this.taskList.push(res);
           this.model = new Task();
         })
+      },
+      deleteItem(item) {
+        this.$services.todo.delete(item).then((res)=>{
+          this.taskList = res
+        })
+      },
+      editItem(item) {
+        this.$services.todo.edit(item).then((res)=>{
+          this.taskList = res
+        })
       }
+
     },
     watch: {
       message() {
@@ -90,6 +139,9 @@
           return item.status === this.filterStatus;
         });
       }
+    },
+    components: {
+      Popup
     }
 
   }
@@ -99,4 +151,19 @@
   .todo {
     background-color: aqua;
   }
+
+  .critical {
+    background-color: red;
+  }
+  .high {
+    background-color: pink;
+  }
+
+  .medium {
+    background-color: green;
+  }
+
+  .low {
+    background-color: blue;}
+  
 </style>
