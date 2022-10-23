@@ -7,6 +7,8 @@
       <div class="card-body">
         <h5 class="card-title">My tasks</h5>
         <div class="card-text">
+          <button class="btn btn-primary" @click="isOpenAdd = true">Create a new task</button>
+          <Popup :open="isOpenAdd" @close="isOpenAdd = !isOpenAdd">
           <form>
             <div class="form-group">
               <label for="task-type">Type:</label>
@@ -27,7 +29,7 @@
             </div>
             <button type="submit" class="btn btn-primary" @click.prevent="submit" :disabled="!isValid">Submit</button>
           </form>
-
+          </Popup>
           <ul class="pt-3">
             <li v-for="(item, index) in filteredTaskList" :key="index" class="d-flex justify-content-between mb-3">
               <div>
@@ -38,9 +40,14 @@
               <div>
                 <button class="btn btn-primary" @click="item.status = 'completed' ">Compled</button>
                 <button class="btn btn-danger" @click.prevent="deleteItem(item)">Deled</button>
-                <button class="btn btn-warning" @click="isOpen = true">Edid</button>
+                <button class="btn btn-warning" @click="isOpen = true">Edit</button>
                 <Popup :open="isOpen" @close="isOpen = !isOpen">
                 <form>
+                  <div class="form-group">
+                    <label for="task-title">Task title</label>
+                    <input v-model="item.title" type="text" class="form-control" id="task-title" 
+                          aria-describedby="emailHelp">
+                  </div>
                   <label for="task-type">Type:</label>
                   <select v-model="item.type" name="cars" class="form-control" id="task-type">
                     <option value="critical">Critical</option>
@@ -48,12 +55,6 @@
                     <option value="medium">Medium</option>
                     <option value="low">Low</option>
                   </select>
-
-                  <div class="form-group">
-                    <label for="task-title">Task title</label>
-                    <input v-model="item.title" type="text" class="form-control" id="task-title" 
-                          aria-describedby="emailHelp">
-                  </div>
                   <div class="form-group">
                     <label for="task-desc">Task description</label>
                     <textarea v-model="item.description" class="form-control" id="task-desc"></textarea>
@@ -91,6 +92,7 @@
     data: () => {
       return {
         isOpen: false,
+        isOpenAdd: false,
         model: new Task(),
         taskList: [],
         filterStatus: "",
